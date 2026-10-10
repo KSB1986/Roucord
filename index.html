@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Roucord</title>
   
-  <!-- Embedded High-Definition SVG Favicon -->
+  <!-- Custom Transparent Roucord Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='rg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366F1'/%3E%3Cstop offset='100%25' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M22 18 C22 13.6 25.6 10 30 10 L58 10 C72.4 10 84 21.6 84 36 C84 48.2 75.6 58.4 64.2 61.2 L78.4 85.8 C80.2 88.9 78 92.8 74.4 92.8 L60.8 92.8 C58.2 92.8 55.8 91.3 54.6 89 L42.2 64 L34 64 L34 88 C34 90.8 31.8 93 29 93 L27 93 C24.2 93 22 90.8 22 88 Z M34 22 L34 52 L56 52 C65 52 72 45 72 37 C72 29 65 22 56 22 Z' fill='url(%23rg)'/%3E%3Ccircle cx='52' cy='37' r='6' fill='%2338BDF8'/%3E%3Cpath d='M14 42 C11 42 9 44.5 9 48 L9 60 C9 63.5 11 66 14 66 Z' fill='%238B5CF6' opacity='0.85'/%3E%3C/svg%3E">
+
   <style>
     :root {
       --bg-tertiary: #202225;
@@ -26,88 +27,123 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg-primary); color: var(--text-normal); height: 100vh; display: flex; overflow: hidden; user-select: none; }
+    
+    /* Prevents iOS zoom on input focus */
+    input { font-size: 16px; }
 
     /* Login Screen */
     #auth-screen { position: fixed; inset: 0; background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-    .auth-card { background: var(--bg-secondary); padding: 32px; border-radius: 8px; width: 340px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); text-align: center; }
+    .auth-card { background: var(--bg-secondary); padding: 32px; border-radius: 8px; width: 90%; max-width: 380px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); text-align: center; }
     .auth-card h2 { color: var(--text-header); margin-bottom: 8px; }
     .auth-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
-    .auth-card input { width: 100%; padding: 10px; margin-bottom: 12px; border: none; border-radius: 4px; background: var(--bg-tertiary); color: white; outline: none; }
-    .auth-card button { width: 100%; padding: 10px; border: none; border-radius: 4px; background: var(--blurple); color: white; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 8px; }
+    .auth-card input { width: 100%; padding: 12px; margin-bottom: 12px; border: none; border-radius: 4px; background: var(--bg-tertiary); color: white; outline: none; }
+    .auth-card button { width: 100%; padding: 12px; border: none; border-radius: 4px; background: var(--blurple); color: white; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 8px; }
     .auth-card button:hover { background: var(--blurple-hover); }
 
-    /* Layout */
-    #app-container { display: flex; width: 100vw; height: 100vh; }
+    /* Layout Base */
+    #app-container { display: flex; width: 100vw; height: 100vh; position: relative; }
     
     /* 1. Left Server Rail */
-    .server-rail { width: 72px; background: var(--bg-tertiary); display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 8px; }
+    .server-rail { width: 72px; background: var(--bg-tertiary); display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 8px; z-index: 100; }
     .server-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--blurple); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
     .server-icon:hover { border-radius: 16px; background: var(--green); }
     .server-divider { width: 32px; height: 2px; background: var(--channel-active); margin: 4px 0; }
 
     /* 2. Channel Sidebar */
-    .channel-sidebar { width: 240px; background: var(--bg-secondary); display: flex; flex-direction: column; }
+    .channel-sidebar { width: 240px; background: var(--bg-secondary); display: flex; flex-direction: column; z-index: 99; }
     .guild-header { height: 48px; border-bottom: 1px solid var(--bg-tertiary); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-weight: bold; color: var(--text-header); }
     .channel-list { flex: 1; overflow-y: auto; padding: 12px 8px; }
     .category-title { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; padding: 6px 8px; display: flex; justify-content: space-between; align-items: center; }
-    .channel-item { display: flex; align-items: center; padding: 6px 8px; margin: 2px 0; border-radius: 4px; color: var(--text-muted); cursor: pointer; font-size: 0.95rem; }
+    .channel-item { display: flex; align-items: center; padding: 8px; margin: 2px 0; border-radius: 4px; color: var(--text-muted); cursor: pointer; font-size: 0.95rem; }
     .channel-item:hover { background: var(--channel-hover); color: var(--text-normal); }
     .channel-item.active { background: var(--channel-active); color: var(--text-header); font-weight: 500; }
     .channel-item span { margin-right: 6px; font-weight: bold; }
 
     /* User Footer Panel */
-    .user-footer { height: 54px; background: var(--bg-secondary-alt); display: flex; align-items: center; padding: 0 8px; gap: 8px; }
-    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blurple); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; position: relative; background-size: cover; background-position: center; flex-shrink: 0; }
+    .user-footer { height: 60px; background: var(--bg-secondary-alt); display: flex; align-items: center; padding: 0 10px; gap: 8px; }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blurple); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background-size: cover; background-position: center; flex-shrink: 0; }
     .user-details { flex: 1; overflow: hidden; line-height: 1.2; cursor: pointer; }
     .user-name { font-size: 0.9rem; font-weight: bold; color: var(--text-header); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .user-role-label { font-size: 0.7rem; color: var(--text-muted); }
 
     /* 3. Main Chat View */
-    .chat-container { flex: 1; display: flex; flex-direction: column; background: var(--bg-primary); }
+    .chat-container { flex: 1; display: flex; flex-direction: column; background: var(--bg-primary); position: relative; width: 100%; }
     .chat-header { height: 48px; border-bottom: 1px solid var(--bg-tertiary); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-weight: bold; }
     .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
     
-    .message-row { display: flex; gap: 14px; position: relative; padding: 2px 0; }
-    .message-row:hover .msg-actions { display: flex; }
+    .message-row { display: flex; gap: 12px; position: relative; padding: 2px 0; }
     .msg-content-wrapper { flex: 1; }
-    .msg-author-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+    .msg-author-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
     .msg-author { font-weight: 600; font-size: 0.95rem; cursor: pointer; }
     .msg-date { font-size: 0.75rem; color: var(--text-muted); }
     .msg-body { font-size: 0.95rem; line-height: 1.35; word-break: break-word; user-select: text; }
     
     .msg-actions { position: absolute; right: 10px; top: -10px; background: var(--bg-secondary); border-radius: 4px; display: none; border: 1px solid var(--bg-tertiary); }
-    .action-btn { background: none; border: none; color: var(--text-muted); padding: 4px 8px; cursor: pointer; }
+    .message-row:hover .msg-actions { display: flex; }
+    /* On mobile, action buttons are always slightly visible to tap them */
+    @media (hover: none) { .msg-actions { display: flex; top: -15px; right: 0; background: var(--bg-tertiary); opacity: 0.9; padding: 2px; } }
+
+    .action-btn { background: none; border: none; color: var(--text-normal); padding: 4px 8px; cursor: pointer; font-size: 1rem; }
     .action-btn:hover { color: var(--text-header); background: var(--channel-hover); }
 
-    .reactions-bar { display: flex; gap: 4px; margin-top: 6px; }
-    .reaction-pill { background: var(--bg-secondary-alt); border: 1px solid var(--bg-tertiary); padding: 2px 6px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .reactions-bar { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+    .reaction-pill { background: var(--bg-secondary-alt); border: 1px solid var(--bg-tertiary); padding: 4px 8px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 4px; }
     .reaction-pill:hover { border-color: var(--blurple); }
 
-    .chat-input-wrapper { padding: 16px; background: var(--bg-primary); }
-    .chat-input-wrapper input { width: 100%; padding: 12px 16px; background: var(--channel-active); border: none; border-radius: 8px; color: var(--text-normal); outline: none; }
+    .chat-input-wrapper { padding: 12px 16px; background: var(--bg-primary); }
+    .chat-input-wrapper input { width: 100%; padding: 14px 16px; background: var(--channel-active); border: none; border-radius: 8px; color: var(--text-normal); outline: none; }
 
     /* 4. Members Sidebar */
-    .members-sidebar { width: 240px; background: var(--bg-secondary); overflow-y: auto; padding: 16px 8px; display: flex; flex-direction: column; gap: 12px; }
+    .members-sidebar { width: 240px; background: var(--bg-secondary); overflow-y: auto; padding: 16px 8px; display: flex; flex-direction: column; gap: 12px; z-index: 100; }
     .member-group-title { font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); padding: 0 8px; margin-bottom: 4px; }
-    .member-card { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 4px; cursor: pointer; }
+    .member-card { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 4px; cursor: pointer; }
     .member-card:hover { background: var(--channel-hover); }
-    .status-badge { width: 10px; height: 10px; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-secondary); }
+    .status-badge { width: 12px; height: 12px; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--bg-secondary); }
     .online-badge { background: var(--green); }
     .offline-badge { background: var(--text-muted); }
 
+    /* Mobile Toggle Buttons */
+    .mobile-toggle { display: none; background: none; border: none; color: var(--text-header); font-size: 1.5rem; cursor: pointer; padding: 0 5px; }
+    .mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 95; }
+    
     /* Modals (Owner & Profile Edit) */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; align-items: center; justify-content: center; }
-    .modal-card { background: var(--bg-secondary); width: 440px; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
-    .modal-header { padding: 16px; border-bottom: 1px solid var(--bg-tertiary); font-weight: bold; display: flex; justify-content: space-between; }
-    .modal-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-    .modal-body input { width: 100%; padding: 10px; background: var(--bg-tertiary); border: none; border-radius: 4px; color: white; outline: none; }
-    .modal-body button { width: 100%; padding: 10px; border: none; border-radius: 4px; background: var(--blurple); color: white; font-weight: bold; cursor: pointer; }
-    .modal-body button:hover { background: var(--blurple-hover); }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 500; align-items: center; justify-content: center; padding: 10px; }
+    .modal-card { background: var(--bg-secondary); width: 100%; max-width: 440px; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+    .modal-header { padding: 16px; border-bottom: 1px solid var(--bg-tertiary); font-weight: bold; display: flex; justify-content: space-between; font-size: 1.1rem; }
+    .modal-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; max-height: 70vh; overflow-y: auto; }
+    .modal-body input { width: 100%; padding: 12px; background: var(--bg-tertiary); border: none; border-radius: 4px; color: white; outline: none; }
+    .modal-body button { width: 100%; padding: 12px; border: none; border-radius: 4px; background: var(--blurple); color: white; font-weight: bold; cursor: pointer; font-size: 1rem; }
 
-    .manage-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg-primary); padding: 10px; border-radius: 6px; }
-    .manage-btns button { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 6px; }
+    .manage-row { display: flex; flex-direction: column; gap: 10px; background: var(--bg-primary); padding: 12px; border-radius: 6px; margin-bottom: 8px; }
+    .manage-info { display: flex; justify-content: space-between; align-items: center; }
+    .manage-btns { display: flex; gap: 8px; }
+    .manage-btns button { padding: 8px; flex: 1; }
 
     .hidden { display: none !important; }
+
+    /* 📱 MOBILE RESPONSIVE DESIGN 📱 */
+    @media (max-width: 800px) {
+      .mobile-toggle { display: block; }
+      
+      /* Hide Sidebars by default on Mobile, move them off-screen using exact pixels */
+      .server-rail { position: fixed; left: -72px; top: 0; bottom: 0; transition: transform 0.3s ease; z-index: 100; }
+      .channel-sidebar { position: fixed; left: -312px; top: 0; bottom: 0; width: 260px; max-width: calc(100vw - 72px); transition: transform 0.3s ease; z-index: 99; }
+      .members-sidebar { position: fixed; right: -300px; top: 0; bottom: 0; width: 260px; max-width: 85vw; transition: transform 0.3s ease; z-index: 100; }
+      
+      /* Active states when menu is open */
+      .server-rail.mobile-open { transform: translateX(72px); }
+      .channel-sidebar.mobile-open { transform: translateX(384px); } /* 72 + 312 */
+      .members-sidebar.mobile-open { transform: translateX(-300px); }
+      
+      .mobile-overlay.active { display: block; }
+
+      /* Make header clean on mobile */
+      .chat-header { padding: 0 10px; }
+      .chat-input-wrapper { padding: 10px; }
+      
+      /* Owner Panel adjustments for small screens */
+      .modal-card { width: 95%; }
+    }
   </style>
 </head>
 <body>
@@ -115,56 +151,61 @@
   <!-- AUTHENTICATION -->
   <div id="auth-screen">
     <div class="auth-card">
-      <h2>Roucord</h2>
-      <p>Log in with your username</p>
+      <h2 style="color: var(--blurple); margin-bottom: 20px; font-size: 1.8rem;">Roucord</h2>
       <input type="text" id="auth-user" placeholder="Username (e.g. Rounakgod_65)">
       <input type="password" id="auth-pass" placeholder="Password">
       <button id="btn-login">Log In</button>
       <button id="btn-register" style="background: var(--bg-tertiary);">Register</button>
-      <div id="auth-err" style="color: var(--red); font-size: 0.8rem; margin-top: 8px;"></div>
+      <div id="auth-err" style="color: var(--red); font-size: 0.9rem; margin-top: 10px;"></div>
     </div>
   </div>
 
   <!-- APPLICATION INTERFACE -->
   <div id="app-container" class="hidden">
     
+    <!-- Dark overlay for mobile menus -->
+    <div id="mobile-overlay" class="mobile-overlay"></div>
+
     <!-- 1. Left Server Rail -->
-    <div class="server-rail">
+    <div class="server-rail" id="server-rail">
       <div class="server-icon" title="Roucord Server">R</div>
       <div class="server-divider"></div>
       <div class="server-icon" style="background: var(--channel-active); font-size: 1.4rem;">+</div>
     </div>
 
     <!-- 2. Channels Sidebar -->
-    <div class="channel-sidebar">
+    <div class="channel-sidebar" id="channel-sidebar">
       <div class="guild-header">
         <span>Roucord Server</span>
-        <button id="btn-open-owner" class="hidden" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">⚙️</button>
+        <button id="btn-open-owner" class="hidden" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size: 1.2rem;">⚙️</button>
       </div>
 
       <div class="channel-list">
         <div class="category-title">
           <span>Text Channels</span>
-          <span id="btn-add-channel" class="hidden" style="cursor:pointer;">+</span>
+          <span id="btn-add-channel" class="hidden" style="cursor:pointer; font-size: 1.2rem;">+</span>
         </div>
         <div id="channels-container"></div>
       </div>
 
-      <!-- User footer dock -->
       <div class="user-footer">
-        <div class="user-avatar" id="dock-avatar" style="cursor:pointer;" title="Click to edit profile picture">?</div>
-        <div class="user-details" id="dock-user-details" title="Click to edit profile picture">
+        <div class="user-avatar" id="dock-avatar" style="cursor:pointer;">?</div>
+        <div class="user-details" id="dock-user-details">
           <div class="user-name" id="dock-username">...</div>
           <div class="user-role-label" id="dock-role">Member</div>
         </div>
-        <button id="btn-logout" style="background:none; border:none; color:var(--red); cursor:pointer; font-size:0.85rem;">Exit</button>
+        <button id="btn-logout" style="background:none; border:none; color:var(--red); cursor:pointer; font-size:1.2rem; padding: 5px;">🚪</button>
       </div>
     </div>
 
     <!-- 3. Central Chat Frame -->
     <div class="chat-container">
       <div class="chat-header">
-        <span id="active-channel-name"># general</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="btn-mobile-menu" class="mobile-toggle">☰</button>
+          <span id="active-channel-name" style="font-size: 1.1rem;"># general</span>
+        </div>
+        <button id="btn-mobile-members" class="mobile-toggle">👥</button>
       </div>
 
       <div class="chat-messages" id="messages-container"></div>
@@ -175,7 +216,12 @@
     </div>
 
     <!-- 4. Right Members Sidebar -->
-    <div class="members-sidebar" id="members-container"></div>
+    <div class="members-sidebar" id="members-sidebar">
+      <div class="guild-header" style="justify-content: center; color: var(--text-muted);">
+        Members List
+      </div>
+      <div id="members-container" style="flex:1; overflow-y:auto;"></div>
+    </div>
 
   </div>
 
@@ -184,26 +230,26 @@
     <div class="modal-card">
       <div class="modal-header">
         <span>Edit Profile Picture</span>
-        <span id="close-avatar" style="cursor:pointer;">✕</span>
+        <span id="close-avatar" style="cursor:pointer; padding: 0 10px;">✕</span>
       </div>
       <div class="modal-body">
-        <label style="font-size: 0.8rem; color: var(--text-muted);">Paste Image URL</label>
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Paste Image URL</label>
         <input type="text" id="avatar-url-input" placeholder="https://example.com/avatar.png">
-        <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem;">— OR CHOOSE FILE —</div>
-        <input type="file" id="avatar-file-input" accept="image/*">
-        <button id="btn-save-avatar">Save Profile Picture</button>
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin: 10px 0;">— OR CHOOSE FILE —</div>
+        <input type="file" id="avatar-file-input" accept="image/*" style="padding:0; background:none;">
+        <button id="btn-save-avatar" style="margin-top: 15px;">Save Profile Picture</button>
       </div>
     </div>
   </div>
 
   <!-- OWNER MODAL (Roles & Bans) -->
   <div id="owner-modal" class="modal-overlay">
-    <div class="modal-card" style="width: 550px; max-height: 80vh;">
+    <div class="modal-card">
       <div class="modal-header">
-        <span>Roucord Server Controls</span>
-        <span id="close-owner" style="cursor:pointer;">✕</span>
+        <span>Server Controls</span>
+        <span id="close-owner" style="cursor:pointer; padding: 0 10px;">✕</span>
       </div>
-      <div class="modal-body" style="overflow-y: auto;" id="owner-user-list"></div>
+      <div class="modal-body" id="owner-user-list"></div>
     </div>
   </div>
 
@@ -220,8 +266,7 @@
       projectId: "roucorde",
       storageBucket: "roucorde.firebasestorage.app",
       messagingSenderId: "230594840132",
-      appId: "1:230594840132:web:d831166148a49b94cc5e11",
-      measurementId: "G-1STPM786ZY"
+      appId: "1:230594840132:web:d831166148a49b94cc5e11"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -236,13 +281,39 @@
     const toEmail = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') + "@roucord.local";
 
     /* Helper: Avatar HTML Generator */
-    function renderAvatarElement(username, avatarUrl, size = 32, extraClass = '') {
+    function renderAvatarElement(username, avatarUrl, size = 40, extraClass = '') {
       const initial = username ? username[0].toUpperCase() : '?';
       if (avatarUrl) {
         return `<div class="user-avatar ${extraClass}" style="width:${size}px; height:${size}px; background-image:url('${avatarUrl}'); font-size:0;"></div>`;
       }
       return `<div class="user-avatar ${extraClass}" style="width:${size}px; height:${size}px; font-size:${Math.round(size * 0.45)}px;">${initial}</div>`;
     }
+
+    /* --- MOBILE MENU LOGIC --- */
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const sRail = document.getElementById('server-rail');
+    const cSidebar = document.getElementById('channel-sidebar');
+    const mSidebar = document.getElementById('members-sidebar');
+
+    function closeMobileMenus() {
+      sRail.classList.remove('mobile-open');
+      cSidebar.classList.remove('mobile-open');
+      mSidebar.classList.remove('mobile-open');
+      mobileOverlay.classList.remove('active');
+    }
+
+    document.getElementById('btn-mobile-menu').onclick = () => {
+      sRail.classList.add('mobile-open');
+      cSidebar.classList.add('mobile-open');
+      mobileOverlay.classList.add('active');
+    };
+
+    document.getElementById('btn-mobile-members').onclick = () => {
+      mSidebar.classList.add('mobile-open');
+      mobileOverlay.classList.add('active');
+    };
+
+    mobileOverlay.onclick = closeMobileMenus;
 
     /* --- AUTHENTICATION --- */
     document.getElementById('btn-register').onclick = async () => {
@@ -254,10 +325,7 @@
       try {
         const cred = await createUserWithEmailAndPassword(auth, toEmail(u), p);
         await set(ref(db, 'users/' + cred.user.uid), {
-          username: u,
-          role: isOwner ? 'owner' : 'user',
-          isBanned: false,
-          avatar: ''
+          username: u, role: isOwner ? 'owner' : 'user', isBanned: false, avatar: ''
         });
       } catch (e) { document.getElementById('auth-err').innerText = e.message; }
     };
@@ -265,9 +333,8 @@
     document.getElementById('btn-login').onclick = async () => {
       const u = document.getElementById('auth-user').value.trim();
       const p = document.getElementById('auth-pass').value;
-      try {
-        await signInWithEmailAndPassword(auth, toEmail(u), p);
-      } catch (e) { document.getElementById('auth-err').innerText = "Invalid Login."; }
+      try { await signInWithEmailAndPassword(auth, toEmail(u), p); } 
+      catch (e) { document.getElementById('auth-err').innerText = "Invalid Login."; }
     };
 
     document.getElementById('btn-logout').onclick = () => signOut(auth);
@@ -291,6 +358,7 @@
       } else {
         document.getElementById('auth-screen').classList.remove('hidden');
         document.getElementById('app-container').classList.add('hidden');
+        closeMobileMenus();
       }
     });
 
@@ -312,37 +380,30 @@
       }
     }
 
-    /* --- PRESENCE --- */
     function setupPresence(uid) {
       const statusRef = ref(db, 'status/' + uid);
       onValue(ref(db, '.info/connected'), (snap) => {
-        if (snap.val()) {
-          onDisconnect(statusRef).set('offline').then(() => set(statusRef, 'online'));
-        }
+        if (snap.val()) onDisconnect(statusRef).set('offline').then(() => set(statusRef, 'online'));
       });
     }
 
-    /* --- REALTIME LISTENERS --- */
     function initRealtimeListeners() {
-      // Channels
       onValue(ref(db, 'channels'), (snap) => {
         const container = document.getElementById('channels-container');
         container.innerHTML = '';
-        if (!snap.exists()) {
-          set(ref(db, 'channels/general'), { name: 'general' });
-        } else {
+        if (!snap.exists()) set(ref(db, 'channels/general'), { name: 'general' });
+        else {
           snap.forEach((c) => {
             const ch = c.val();
             const div = document.createElement('div');
             div.className = `channel-item ${ch.name === activeChannel ? 'active' : ''}`;
             div.innerHTML = `<span>#</span>${ch.name}`;
-            div.onclick = () => switchChannel(ch.name);
+            div.onclick = () => { switchChannel(ch.name); closeMobileMenus(); };
             container.appendChild(div);
           });
         }
       });
 
-      // Users directory
       onValue(ref(db, 'users'), (snap) => {
         usersRegistry = snap.val() || {};
         if (currentUser && usersRegistry[currentUser.id]) {
@@ -353,7 +414,6 @@
         if (currentUser && currentUser.role === 'owner') renderOwnerDashboard();
       });
 
-      // Status
       onValue(ref(db, 'status'), (snap) => {
         presenceData = snap.val() || {};
         renderMembers();
@@ -365,9 +425,7 @@
     function switchChannel(name) {
       activeChannel = name;
       document.getElementById('active-channel-name').innerText = `# ${name}`;
-      document.querySelectorAll('.channel-item').forEach(el => {
-        el.classList.toggle('active', el.innerText.includes(name));
-      });
+      document.querySelectorAll('.channel-item').forEach(el => el.classList.toggle('active', el.innerText.includes(name)));
       listenToMessages();
     }
 
@@ -382,20 +440,17 @@
             const author = usersRegistry[msg.senderId]?.username || 'Unknown';
             const role = usersRegistry[msg.senderId]?.role || 'user';
             const avatar = usersRegistry[msg.senderId]?.avatar || '';
-            
-            const row = document.createElement('div');
-            row.className = 'message-row';
-            
             const color = role === 'owner' ? 'var(--gold)' : role === 'mod' ? 'var(--green)' : 'var(--text-header)';
             
             let reactionsHtml = '';
             if (msg.reactions) {
-              reactionsHtml = '<div class="reactions-bar">' + 
-                Object.entries(msg.reactions).map(([emoji, list]) => 
-                  `<div class="reaction-pill" onclick="window.addReaction('${msgId}', '${emoji}')">${emoji} ${Object.keys(list).length}</div>`
-                ).join('') + '</div>';
+              reactionsHtml = '<div class="reactions-bar">' + Object.entries(msg.reactions).map(([emoji, list]) => 
+                `<div class="reaction-pill" onclick="window.addReaction('${msgId}', '${emoji}')">${emoji} ${Object.keys(list).length}</div>`
+              ).join('') + '</div>';
             }
 
+            const row = document.createElement('div');
+            row.className = 'message-row';
             row.innerHTML = `
               ${renderAvatarElement(author, avatar, 40)}
               <div class="msg-content-wrapper">
@@ -409,8 +464,7 @@
               <div class="msg-actions">
                 <button class="action-btn" onclick="window.addReaction('${msgId}', '❤️')">❤️</button>
                 <button class="action-btn" onclick="window.addReaction('${msgId}', '🔥')">🔥</button>
-                ${(currentUser.role === 'owner' || currentUser.role === 'mod') ? 
-                  `<button class="action-btn" style="color:var(--red);" onclick="window.deleteMsg('${msgId}')">🗑️</button>` : ''}
+                ${(currentUser.role === 'owner' || currentUser.role === 'mod') ? `<button class="action-btn" style="color:var(--red);" onclick="window.deleteMsg('${msgId}')">🗑️</button>` : ''}
               </div>
             `;
             container.appendChild(row);
@@ -420,25 +474,15 @@
       });
     }
 
-    /* --- INTERACTIONS --- */
     document.getElementById('chat-input').addEventListener('keypress', (e) => {
       if (e.key === 'Enter' && e.target.value.trim()) {
-        push(ref(db, `messages/${activeChannel}`), {
-          text: e.target.value.trim(),
-          senderId: currentUser.id,
-          timestamp: serverTimestamp()
-        });
+        push(ref(db, `messages/${activeChannel}`), { text: e.target.value.trim(), senderId: currentUser.id, timestamp: serverTimestamp() });
         e.target.value = '';
       }
     });
 
-    window.addReaction = (msgId, emoji) => {
-      set(ref(db, `messages/${activeChannel}/${msgId}/reactions/${emoji}/${currentUser.id}`), true);
-    };
-
-    window.deleteMsg = (msgId) => {
-      remove(ref(db, `messages/${activeChannel}/${msgId}`));
-    };
+    window.addReaction = (msgId, emoji) => set(ref(db, `messages/${activeChannel}/${msgId}/reactions/${emoji}/${currentUser.id}`), true);
+    window.deleteMsg = (msgId) => remove(ref(db, `messages/${activeChannel}/${msgId}`));
 
     document.getElementById('btn-add-channel').onclick = () => {
       const name = prompt("Enter new channel name (lowercase, no spaces):");
@@ -448,9 +492,9 @@
       }
     };
 
-    /* --- PROFILE PICTURE MODAL LOGIC --- */
+    /* --- PROFILE MODAL --- */
     const avatarModal = document.getElementById('avatar-modal');
-    const openAvatarEditor = () => avatarModal.style.display = 'flex';
+    const openAvatarEditor = () => { avatarModal.style.display = 'flex'; closeMobileMenus(); };
     document.getElementById('dock-avatar').onclick = openAvatarEditor;
     document.getElementById('dock-user-details').onclick = openAvatarEditor;
     document.getElementById('close-avatar').onclick = () => avatarModal.style.display = 'none';
@@ -460,19 +504,14 @@
       const fileInput = document.getElementById('avatar-file-input').files[0];
 
       if (fileInput) {
-        // Read and compress local image to Base64
         const reader = new FileReader();
         reader.onload = async (e) => {
           const img = new Image();
           img.onload = async () => {
             const canvas = document.createElement('canvas');
-            const maxDim = 128; // Compress to 128x128 for efficient database storage
-            canvas.width = maxDim;
-            canvas.height = maxDim;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, maxDim, maxDim);
-            const base64 = canvas.toDataURL('image/jpeg', 0.8);
-            await update(ref(db, 'users/' + currentUser.id), { avatar: base64 });
+            canvas.width = 128; canvas.height = 128;
+            canvas.getContext('2d').drawImage(img, 0, 0, 128, 128);
+            await update(ref(db, 'users/' + currentUser.id), { avatar: canvas.toDataURL('image/jpeg', 0.8) });
             avatarModal.style.display = 'none';
           };
           img.src = e.target.result;
@@ -484,36 +523,26 @@
       }
     };
 
-    /* --- SIDEBAR MEMBER DIRECTORY --- */
+    /* --- DIRECTORY --- */
     function renderMembers() {
       const container = document.getElementById('members-container');
       container.innerHTML = '';
-
-      const roles = ['owner', 'mod', 'user'];
-      const labels = { owner: '👑 Server Owner', mod: '🛡️ Moderators', user: 'Members' };
-
-      roles.forEach(r => {
+      ['owner', 'mod', 'user'].forEach(r => {
         const matches = Object.entries(usersRegistry).filter(([id, u]) => u.role === r && !u.isBanned);
         if (matches.length > 0) {
           const title = document.createElement('div');
           title.className = 'member-group-title';
-          title.innerText = `${labels[r]} — ${matches.length}`;
+          title.innerText = `${r === 'owner' ? '👑 Owner' : r === 'mod' ? '🛡️ Mods' : 'Members'} — ${matches.length}`;
           container.appendChild(title);
-
           matches.forEach(([id, u]) => {
-            const isOnline = presenceData[id] === 'online';
             const card = document.createElement('div');
             card.className = 'member-card';
-            
-            const avatarHtml = renderAvatarElement(u.username, u.avatar, 32);
             card.innerHTML = `
               <div style="position:relative;">
-                ${avatarHtml}
-                <span class="status-badge ${isOnline ? 'online-badge' : 'offline-badge'}"></span>
+                ${renderAvatarElement(u.username, u.avatar, 36)}
+                <span class="status-badge ${presenceData[id] === 'online' ? 'online-badge' : 'offline-badge'}"></span>
               </div>
-              <span style="font-size:0.9rem; color:${r==='owner'?'var(--gold)':r==='mod'?'var(--green)':'var(--text-normal)'}">
-                ${u.username}
-              </span>
+              <span style="font-size:0.95rem; color:${r==='owner'?'var(--gold)':r==='mod'?'var(--green)':'var(--text-normal)'}">${u.username}</span>
             `;
             container.appendChild(card);
           });
@@ -522,31 +551,29 @@
     }
 
     /* --- OWNER CONTROLS --- */
-    document.getElementById('btn-open-owner').onclick = () => document.getElementById('owner-modal').style.display = 'flex';
+    document.getElementById('btn-open-owner').onclick = () => { document.getElementById('owner-modal').style.display = 'flex'; closeMobileMenus(); };
     document.getElementById('close-owner').onclick = () => document.getElementById('owner-modal').style.display = 'none';
 
     function renderOwnerDashboard() {
       const container = document.getElementById('owner-user-list');
       container.innerHTML = '';
-
       Object.entries(usersRegistry).forEach(([uid, u]) => {
         if (u.role === 'owner') return;
         const div = document.createElement('div');
         div.className = 'manage-row';
         div.innerHTML = `
-          <div>
-            <strong>${u.username}</strong> (${u.role})
-            <div style="font-size:0.75rem; color:${u.isBanned ? 'var(--red)' : 'var(--green)'};">
+          <div class="manage-info">
+            <div>
+              <strong style="font-size:1.1rem">${u.username}</strong> <br>
+              <span style="font-size:0.8rem; color:var(--text-muted)">Role: ${u.role.toUpperCase()}</span>
+            </div>
+            <div style="font-weight:bold; font-size:0.9rem; color:${u.isBanned ? 'var(--red)' : 'var(--green)'};">
               ${u.isBanned ? 'BANNED' : 'Active'}
             </div>
           </div>
           <div class="manage-btns">
-            <button style="background:var(--red); color:white;" onclick="window.toggleBan('${uid}', ${u.isBanned})">
-              ${u.isBanned ? 'Unban' : 'Ban'}
-            </button>
-            <button style="background:var(--blurple); color:white;" onclick="window.toggleMod('${uid}', '${u.role}')">
-              ${u.role === 'mod' ? 'Demote' : 'Make Mod'}
-            </button>
+            <button style="background:var(--red); color:white;" onclick="window.toggleBan('${uid}', ${u.isBanned})">${u.isBanned ? 'Unban User' : 'Ban User'}</button>
+            <button style="background:var(--blurple); color:white;" onclick="window.toggleMod('${uid}', '${u.role}')">${u.role === 'mod' ? 'Demote Mod' : 'Make Mod'}</button>
           </div>
         `;
         container.appendChild(div);
